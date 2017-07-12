@@ -32,7 +32,7 @@ int fanRelay = 3;
 int humidifierRelay = 2;
 int lightRelay = 8;
 
-const int heaterLED = 7;
+const int heaterLED = 8;
 const int fanLED = 6;
 const int humidifierLED = 5;
 const int lightLED = 4;
@@ -40,8 +40,8 @@ const int motionPin = 2; // choose the input pin (for PIR sensor)
 
 int light = 0;
 float CO2 = 0;
-float DHThumidity = dht.readHumidity();
-float DHTtemp = dht.readTemperature();
+float DHThumidity = 0;
+float DHTtemp = 0;
 
 char tempString[10];
 char humidityString[10];
@@ -104,7 +104,7 @@ void loop() {
   }
 
   //Light
-   light = analogRead(1);    //connect sensor to Analog 0
+  light = analogRead(1);    //connect sensor to Analog 0
   dtostrf(light, 3, 0, lightString);
   Serial.print("Light: "); Serial.println(light); //print the value to serial
 
@@ -112,14 +112,17 @@ void loop() {
   float DHThumidity = dht.readHumidity();
   dtostrf(DHThumidity, 3, 0, humidityString);
   float DHTtemp = dht.readTemperature();
-  dtostrf(DHTtemp, 5, 2, tempString);
+  dtostrf(DHTtemp, 5, 1, tempString);
   Serial.print("Humidity: "); Serial.println(DHThumidity); //print the value to serial
   Serial.print("Temperature: "); Serial.println(DHTtemp); //print the value to serial
-  if (DHTtemp < 15) {
+  
+  if (DHTtemp <= 20) {
     digitalWrite(heaterLED, HIGH);
+    Serial.println("Heater LED on!");
   }
   else {
     digitalWrite(heaterLED, LOW);
+    Serial.println("Heater LED off!");
   }
 
   //CO2 Read
@@ -150,7 +153,7 @@ void loop() {
     Serial.print(CO2);
     Serial.println("ppm");
     //itoa(CO2, tempString, 12);
-    dtostrf(CO2, 7, 2, CO2String);
+    dtostrf(CO2, 7, 0, CO2String);
     //Serial.print("String:"); Serial.println(tempString);
   }
   // picture loop
@@ -166,23 +169,26 @@ void loop() {
 void draw(void) {
 
   lcd.setCursor(0, 0);
+  lcd.print("CO2:");
   lcd.print(CO2String);
-  lcd.print(" ppm");
-  
+  lcd.print("ppm");
+
   lcd.setCursor(0, 1);
   lcd.print("Temp: ");
   lcd.print(tempString);
+  lcd.print("C");
 
   lcd.setCursor(0, 2);
   lcd.print("Humidity: ");
   lcd.print(humidityString);
-  
+  lcd.print("%");
+
   lcd.setCursor(0, 3);
   lcd.print("Light: ");
   lcd.print(light);
 
 
-  
+
   // graphic commands to redraw the complete screen should be placed here
   u8g.setFont(u8g_font_unifont);
   //u8g.setFont(u8g_font_osb21);
